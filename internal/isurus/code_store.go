@@ -2,6 +2,7 @@ package isurus
 
 import (
 	"fmt"
+	"go/ast"
 	"go/parser"
 	"go/token"
 	"path/filepath"
@@ -39,18 +40,21 @@ func (cs *CodeStore) AddFile(path string, content string) error {
 	return nil
 }
 
-func (cs *CodeStore) ExportAst() (*token.FileSet, error) {
+func (cs *CodeStore) ExportAst() (*token.FileSet, map[string]*ast.File, error) {
 	fset := token.NewFileSet()
+	astMap := make(map[string]*ast.File, len(cs.fileMap))
 
 	cs.locker.RLock()
 	defer cs.locker.RUnlock()
 
 	for path, content := range cs.fileMap {
-		_, err := parser.ParseFile(fset, path, content, parser.ParseComments)
+		f, err := parser.ParseFile(fset, path, content, parser.ParseComments)
 		if err != nil {
-			return nil, fmt.Errorf("failed to parse file: %w", err)
+			return nil, nil, fmt.Errorf("failed to parse file: %w", err)
 		}
+
+		astMap[path] = f
 	}
 
-	return fset, nil
+	return fset, astMap, nil
 }
