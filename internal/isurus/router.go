@@ -36,6 +36,7 @@ func (r *Router) Run() error {
 
 	conn := jsonrpc2.NewConn(ctx, objectStream, createHandler(map[string]methodHandler{
 		"initialize": InitializeHandler,
+		"addFile":    AddFileHandler,
 		"crud":       CrudHandler,
 	}), jsonrpc2.LogMessages(log.Default()))
 	<-conn.DisconnectNotify()
