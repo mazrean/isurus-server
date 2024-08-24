@@ -47,6 +47,7 @@ type Query struct {
 	TableID  string    `json:"tableId"`
 	Position Position  `json:"position"`
 	Type     QueryType `json:"type"`
+	Raw      string    `json:"raw"`
 	InLoop   bool      `json:"inLoop"`
 }
 
@@ -167,6 +168,7 @@ func CrudHandler(ctx context.Context, conn *jsonrpc2.Conn, message *json.RawMess
 					Column: uint(position.Column),
 				},
 				Type:   qt,
+				Raw:    q.Value.Raw,
 				InLoop: q.InLoop,
 			})
 

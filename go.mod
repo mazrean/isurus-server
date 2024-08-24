@@ -3,7 +3,7 @@ module github.com/mazrean/isurus-server
 go 1.23.0
 
 require (
-	github.com/mazrean/isucrud v1.2.0
+	github.com/mazrean/isucrud v1.2.1
 	github.com/sourcegraph/jsonrpc2 v0.2.0
 	golang.org/x/tools v0.24.0 // indirect
 )

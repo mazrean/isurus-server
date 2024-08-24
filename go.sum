@@ -2,6 +2,8 @@ github.com/gorilla/websocket v1.4.1 h1:q7AeDBpnBk8AogcD4DSag/Ukw/KV+YhzLj2bP5HvK
 github.com/gorilla/websocket v1.4.1/go.mod h1:YR8l580nyteQvAITg2hZ9XVh4b55+EU/adAjf1fMHhE=
 github.com/mazrean/isucrud v1.2.0 h1:YdqLnN4mp9FkRSfBfB83eMM6CCqdhQj39/r2wVWNo78=
 github.com/mazrean/isucrud v1.2.0/go.mod h1:J+e4YUbzRHi8K0jVbfU47CZ/Rpj2KyVX5N8eN5eh8oE=
+github.com/mazrean/isucrud v1.2.1 h1:jpbZYznev4u70aIhrbDeNGVJenew/KVk9FO9JAM5sBU=
+github.com/mazrean/isucrud v1.2.1/go.mod h1:J+e4YUbzRHi8K0jVbfU47CZ/Rpj2KyVX5N8eN5eh8oE=
 github.com/sourcegraph/jsonrpc2 v0.2.0 h1:KjN/dC4fP6aN9030MZCJs9WQbTOjWHhrtKVpzzSrr/U=
 github.com/sourcegraph/jsonrpc2 v0.2.0/go.mod h1:ZafdZgk/axhT1cvZAPOhw+95nz2I/Ra5qMlU4gTRwIo=
 golang.org/x/mod v0.20.0 h1:utOm6MM3R3dnawAiJgn0y+xvuYRsm1RKM/4giyfDgV0=
