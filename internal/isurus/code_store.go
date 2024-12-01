@@ -26,6 +26,10 @@ func NewStore(rootPath string) *CodeStore {
 	}
 }
 
+func (cs *CodeStore) RootPath() string {
+	return cs.rootPath
+}
+
 func (cs *CodeStore) AddFile(path string, content string) error {
 	relPath, err := filepath.Rel(cs.rootPath, path)
 	if err != nil {

@@ -22,22 +22,23 @@ func (rw readWriteCloser) Close() error {
 	return nil
 }
 
-func NewRouter(r io.Reader, w io.Writer) *Router {
+func NewRouter(r io.Reader, w io.Writer, workDir string) *Router {
+	codeStore.Store(NewStore(workDir))
+
 	return &Router{
 		stream: readWriteCloser{r, w},
 	}
 }
 
 func (r *Router) Run() error {
-	objectStream := jsonrpc2.NewPlainObjectStream(r.stream)
+	objectStream := jsonrpc2.NewBufferedStream(r.stream, jsonrpc2.VSCodeObjectCodec{})
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
 	conn := jsonrpc2.NewConn(ctx, objectStream, createHandler(map[string]methodHandler{
-		"initialize": InitializeHandler,
-		"addFile":    AddFileHandler,
-		"crud":       CrudHandler,
+		"addFile": AddFileHandler,
+		"crud":    CrudHandler,
 	}), jsonrpc2.LogMessages(log.Default()))
 	<-conn.DisconnectNotify()
 
