@@ -8,7 +8,6 @@ import (
 	"go/token"
 	"go/types"
 	"maps"
-	"os"
 
 	"github.com/mazrean/isucrud/dbdoc"
 	"github.com/mazrean/isurus-server/internal/pkg/analyze"
@@ -164,10 +163,6 @@ func CrudHandler(ctx context.Context, conn *jsonrpc2.Conn, message *json.RawMess
 	for _, f := range astFiles {
 		maps.Insert(functionPosMap, maps.All(analyze.DetectFuncDecl(f, functionPosList)))
 	}
-
-	fmt.Fprintf(os.Stderr, "callExprMap: %v\n", callExprMap)
-	fmt.Fprintf(os.Stderr, "queryExprMap: %v\n", queryExprMap)
-	fmt.Fprintf(os.Stderr, "functionPosMap: %v\n", functionPosMap)
 
 	functionMap := make(map[string]Function, len(docFunctions))
 	tableMap := make(map[string]Table)

@@ -1,10 +1,8 @@
 package analyze
 
 import (
-	"fmt"
 	"go/ast"
 	"go/token"
-	"os"
 	"slices"
 	"sort"
 )
@@ -95,7 +93,6 @@ type exprDetectVisitor struct {
 
 func newExprDetectVisitor(posList []token.Pos) *exprDetectVisitor {
 	slices.Sort(posList)
-	fmt.Fprintf(os.Stderr, "posList: %v\n", posList)
 
 	var exprMap = make(map[token.Pos]ast.Expr, len(posList))
 	return &exprDetectVisitor{
@@ -108,7 +105,6 @@ func (edv *exprDetectVisitor) Visit(node ast.Node) ast.Visitor {
 	if node == nil {
 		return nil
 	}
-	fmt.Fprintf(os.Stderr, "node(pos: %d, end: %d): %v\n", node.Pos(), node.End(), node)
 
 	// node以下にある可能性のある、posの最小のindex
 	i := sort.Search(len(edv.posList), func(i int) bool {
@@ -125,7 +121,6 @@ func (edv *exprDetectVisitor) Visit(node ast.Node) ast.Visitor {
 
 	switch expr := node.(type) {
 	case ast.Expr:
-		fmt.Fprintf(os.Stderr, "expr: %v\n", expr)
 		for _, pos := range edv.posList[i : j+1] {
 			if pos >= expr.Pos() && pos < expr.End() {
 				edv.exprMap[pos] = expr
