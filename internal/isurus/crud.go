@@ -33,11 +33,12 @@ type Position struct {
 }
 
 type Function struct {
-	ID       string  `json:"id"`
-	Position Range   `json:"position"`
-	Name     string  `json:"name"`
-	Calls    []Call  `json:"calls"`
-	Queries  []Query `json:"queries"`
+	ID           string  `json:"id"`
+	Position     Range   `json:"position"`
+	Name         string  `json:"name"`
+	NamePosition Range   `json:"namePosition"`
+	Calls        []Call  `json:"calls"`
+	Queries      []Query `json:"queries"`
 }
 
 type Table struct {
@@ -273,8 +274,9 @@ func CrudHandler(ctx context.Context, conn *jsonrpc2.Conn, message *json.RawMess
 		funcDecl, ok := functionPosMap[f.Pos]
 
 		var position Range
+		var namePosition Range
 		if ok {
-			position = getFunctionPosition(fset, funcDecl, f.Pos)
+			position, namePosition = getFunctionPosition(fset, funcDecl, f.Pos)
 		} else {
 			pos := fset.Position(f.Pos)
 			position = Range{
@@ -288,14 +290,16 @@ func CrudHandler(ctx context.Context, conn *jsonrpc2.Conn, message *json.RawMess
 					Column: uint(pos.Column + 1),
 				},
 			}
+			namePosition = position
 		}
 
 		functionMap[f.ID] = Function{
-			ID:       f.ID,
-			Position: position,
-			Name:     f.Name,
-			Calls:    calls,
-			Queries:  queries,
+			ID:           f.ID,
+			Position:     position,
+			Name:         f.Name,
+			NamePosition: namePosition,
+			Calls:        calls,
+			Queries:      queries,
 		}
 	}
 
@@ -315,18 +319,22 @@ func CrudHandler(ctx context.Context, conn *jsonrpc2.Conn, message *json.RawMess
 	}, nil
 }
 
-func getFunctionPosition(fset *token.FileSet, funcUnion analyze.FuncUnion, defaultPos token.Pos) Range {
-	var startPos, endPos token.Position
+func getFunctionPosition(fset *token.FileSet, funcUnion analyze.FuncUnion, defaultPos token.Pos) (Range, Range) {
+	var startPos, endPos, nameStartPos, nameEndPos token.Position
 	switch {
 	case funcUnion.FuncLit != nil:
 		startPos = fset.Position(funcUnion.FuncLit.Pos())
 		endPos = fset.Position(funcUnion.FuncLit.End())
+		nameStartPos = fset.Position(funcUnion.FuncLit.Type.Func)
+		nameEndPos = fset.Position(funcUnion.FuncLit.Type.Func + 4)
 	case funcUnion.FuncDecl != nil:
 		startPos = fset.Position(funcUnion.FuncDecl.Pos())
 		endPos = fset.Position(funcUnion.FuncDecl.End())
+		nameStartPos = fset.Position(funcUnion.FuncDecl.Name.Pos())
+		nameEndPos = fset.Position(funcUnion.FuncDecl.Name.End())
 	default:
 		pos := fset.Position(defaultPos)
-		return Range{
+		position := Range{
 			File: pos.Filename,
 			Start: Position{
 				Line:   uint(pos.Line),
@@ -337,19 +345,31 @@ func getFunctionPosition(fset *token.FileSet, funcUnion analyze.FuncUnion, defau
 				Column: uint(pos.Column + 1),
 			},
 		}
+
+		return position, position
 	}
 
 	return Range{
-		File: startPos.Filename,
-		Start: Position{
-			Line:   uint(startPos.Line),
-			Column: uint(startPos.Column),
-		},
-		End: Position{
-			Line:   uint(endPos.Line),
-			Column: uint(endPos.Column),
-		},
-	}
+			File: startPos.Filename,
+			Start: Position{
+				Line:   uint(startPos.Line),
+				Column: uint(startPos.Column),
+			},
+			End: Position{
+				Line:   uint(endPos.Line),
+				Column: uint(endPos.Column),
+			},
+		}, Range{
+			File: nameStartPos.Filename,
+			Start: Position{
+				Line:   uint(nameStartPos.Line),
+				Column: uint(nameStartPos.Column),
+			},
+			End: Position{
+				Line:   uint(nameEndPos.Line),
+				Column: uint(nameEndPos.Column),
+			},
+		}
 }
 
 func buildSSA(fset *token.FileSet, astFiles map[string]*ast.File) (*ssa.Program, []*packages.Package, error) {
